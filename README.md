@@ -115,8 +115,7 @@ O sistema é voltado para pequenas clínicas e consultórios veterinários que a
 </mxfile>
 
 
+[Diagrama Cuidados-Pet.drawio](https://github.com/user-attachments/files/33127650/Diagrama.Cuidados-Pet.drawio)
 
-
-[Uploading Diagrama Cuidados-Pet.drawio…]()
 
 ## Como rodar
