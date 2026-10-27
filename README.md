@@ -1,4 +1,4 @@
-[Diagrama Cuidados-Pet.drawio](https://github.com/user-attachments/files/33127637/Diagrama.Cuidados-Pet.drawio)
+S
 # Cuidados-Pet
 O CuidadosPet é uma aplicação web em Java para o controle básico do dia a dia de uma clínica veterinária de pequeno porte. 
 
