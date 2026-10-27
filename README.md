@@ -8,7 +8,16 @@ O sistema é voltado para pequenas clínicas e consultórios veterinários que a
 
 ## Entidades
 
+| Entidade | Atributos Principais |	Descrição |
+| -------- | -------- | -------- |
+| Veterinario |	id, nome, telefone, email, endereço, especialidade | Armazena os dados cadastrais, de contato e profissionais dos veterinários da clínica. |
+| Tutor |	id, nome, telefone, email, endereço	| Armazena as informações de contato e cadastro dos responsáveis pelos animais. |
+| Animal	| id, nome, especie, raça, idade, peso, nomeTutor	| Registra os dados dos pets pacientes e suas características físicas vinculadas ao tutor. |
+| Consulta | id, data, nomeAnimal, nomeVeterinario, motivo, valor | Gerencia os registros de atendimentos agendados ou realizados entre médicos e animais. |
+
 ## Tecnologias
+
+JSP, Gson, JSON e o servidor usado (Tomcat)
 
 ## Diagrama
 <mxfile host="app.diagrams.net">
