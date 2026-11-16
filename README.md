@@ -128,3 +128,8 @@ JSP, Gson, JSON e o servidor usado (Tomcat)
 
 
 ## Como rodar
+
+Não consegui instalar o Eclipse, mas consegui rodar o programa pelo VSCode.
+Etapa 1: dar **git clone https://github.com/JeanCFreitas/Cuidados-Pet.git** no repositório
+Usar o comando **mvn package cargo:run** no terminal ou apertar **Ctrl+Shift+B** para iniciar o código.
+Abrir o link **http://localhost:8080/cuidados-pet/**
