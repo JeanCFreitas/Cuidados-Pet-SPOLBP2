@@ -40,19 +40,8 @@ class Consulta {
 }
 
 ' Associações conceituais indicadas pelos campos de referência
-Tutor "1" -- "0..*" Animal : responsável por
+Tutor "1" -- "1*" Animal : responsável por
 Animal "1" -- "0..*" Consulta : recebe
 Veterinario "1" -- "0..*" Consulta : realiza
-
-note bottom of Animal
-  No formulário atual, o tutor é referenciado
-  pelo campo nomeTutor (String).
-end note
-
-note bottom of Consulta
-  No formulário atual, animal e veterinário
-  são referenciados por nomeAnimal e
-  nomeVeterinario (String).
-end note
 
 @enduml
