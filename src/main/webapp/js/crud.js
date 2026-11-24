@@ -1,89 +1,253 @@
-// Caminho relativo: funciona com qualquer context path (ex.: /cuidados-pet/)
-const BASE = "api/";
-const ENTIDADES = {
-  tutores: { titulo: "Tutores", campos: [
-    ["nome","Nome"],["telefone","Telefone"],["email","E-mail","email"],["endereco","Endereço"]]},
-  animais: { titulo: "Animais", campos: [
-    ["nome","Nome"],["especie","Espécie"],["raca","Raça"],
-    ["idade","Idade","number"],["peso","Peso (kg)","number"],["nomeTutor","Nome do tutor"]]},
-  veterinarios: { titulo: "Veterinários", campos: [
-    ["nome","Nome"],["telefone","Telefone"],["email","E-mail","email"],
-    ["endereco","Endereço"],["especialidade","Especialidade"]]},
-  consultas: { titulo: "Consultas", campos: [
-    ["data","Data","date"],["nomeAnimal","Nome do animal"],["nomeVeterinario","Nome do veterinário"],
-    ["motivo","Motivo"],["valor","Valor (R$)","number"]]}
+// Endereço da API e campos de cada seção do sistema.
+const API = "api/";
+
+const entidades = {
+  tutores: {
+    titulo: "Tutores",
+    campos: [
+      ["nome", "Nome"],
+      ["telefone", "Telefone"],
+      ["email", "E-mail", "email"],
+      ["endereco", "Endereço"]
+    ]
+  },
+
+  animais: {
+    titulo: "Animais",
+    campos: [
+      ["nome", "Nome"],
+      ["especie", "Espécie"],
+      ["raca", "Raça"],
+      ["idade", "Idade", "number"],
+      ["peso", "Peso (kg)", "number"],
+      ["nomeTutor", "Nome do tutor"]
+    ]
+  },
+
+  veterinarios: {
+    titulo: "Veterinários",
+    campos: [
+      ["nome", "Nome"],
+      ["telefone", "Telefone"],
+      ["email", "E-mail", "email"],
+      ["endereco", "Endereço"],
+      ["especialidade", "Especialidade"]
+    ]
+  },
+
+  consultas: {
+    titulo: "Consultas",
+    campos: [
+      ["data", "Data", "date"],
+      ["nomeAnimal", "Nome do animal"],
+      ["nomeVeterinario", "Nome do veterinário"],
+      ["motivo", "Motivo"],
+      ["valor", "Valor (R$)", "number"]
+    ]
+  }
 };
 
-const nome = new URLSearchParams(location.search).get("e");
-const cfg = ENTIDADES[nome];
-if (!cfg) { location.href = "index.jsp"; }
-const url = BASE + nome;
-const form = document.getElementById("form");
-let editandoId = 0;
+// Descobre qual seção foi escolhida no menu.
+const secao = new URLSearchParams(window.location.search).get("e");
+const configuracao = entidades[secao];
 
-document.getElementById("titulo").textContent = cfg.titulo;
-document.title = cfg.titulo + " - Cuidados-Pet";
+// Elementos da página e variável de edição.
+const formulario = document.getElementById("form");
+const corpoTabela = document.getElementById("corpo");
+let idEmEdicao = null;
 
-// formulário
-cfg.campos.forEach(([c, rotulo, tipo]) => {
-  const l = document.createElement("label");
-  l.textContent = rotulo;
-  const i = document.createElement("input");
-  i.name = c; i.type = tipo || "text"; i.required = true;
-  if (tipo === "number") i.step = "any";
-  l.appendChild(i); form.appendChild(l);
-});
-const acoes = document.createElement("div");
-acoes.className = "acoes";
-acoes.innerHTML = '<button type="submit">Salvar</button><button type="button" class="sec" id="cancelar">Limpar</button>';
-form.appendChild(acoes);
-document.getElementById("cancelar").onclick = limpar;
+// Verifica se a seção existe.
+if (!configuracao) {
+  window.location.href = "index.jsp";
+} else {
+  iniciarPagina();
+}
 
-// cabeçalho da tabela
-const tr = document.createElement("tr");
-["ID", ...cfg.campos.map(c => c[1]), "Ações"].forEach(t => {
-  const th = document.createElement("th"); th.textContent = t; tr.appendChild(th);
-});
-document.getElementById("cab").appendChild(tr);
+// Inicializa a página.
+function iniciarPagina() {
+  document.getElementById("titulo").textContent = configuracao.titulo;
+  document.title = configuracao.titulo + " - Cuidados-Pet";
 
-function limpar() { form.reset(); editandoId = 0; }
+  criarFormulario();
+  criarCabecalho();
+  carregarRegistros();
 
-form.onsubmit = async e => {
-  e.preventDefault();
-  const obj = { id: editandoId };
-  cfg.campos.forEach(([c,,tipo]) => {
-    const v = form.elements[c].value;
-    obj[c] = tipo === "number" ? Number(v) : v;
+  formulario.addEventListener("submit", salvarRegistro);
+
+  document
+    .getElementById("cancelar")
+    .addEventListener("click", limparFormulario);
+}
+
+// Cria os campos do formulário com base na configuração da seção.
+function criarFormulario() {
+  configuracao.campos.forEach(([nome, rotulo, tipo]) => {
+    const label = document.createElement("label");
+    label.textContent = rotulo;
+
+    const input = document.createElement("input");
+    input.name = nome;
+    input.type = tipo || "text";
+    input.required = true;
+
+    if (tipo === "number") {
+      input.step = "any";
+    }
+
+    label.appendChild(input);
+    formulario.appendChild(label);
   });
-  await fetch(url, { method: editandoId ? "PUT" : "POST",
-    headers: {"Content-Type":"application/json"}, body: JSON.stringify(obj) });
-  limpar(); carregar();
-};
 
-async function carregar() {
-  const lista = await (await fetch(url)).json();
-  const corpo = document.getElementById("corpo");
-  corpo.innerHTML = "";
-  lista.forEach(item => {
-    const tr = document.createElement("tr");
-    [item.id, ...cfg.campos.map(c => item[c[0]] ?? "")].forEach(v => {
-      const td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+  const botoes = document.createElement("div");
+  botoes.className = "acoes";
+
+  botoes.innerHTML = `
+    <button type="submit">Salvar</button>
+    <button type="button" class="sec" id="cancelar">Limpar</button>
+  `;
+
+  formulario.appendChild(botoes);
+}
+
+// Monta as colunas da tabela.
+function criarCabecalho() {
+  const linha = document.createElement("tr");
+
+  const titulos = [
+    "ID",
+    ...configuracao.campos.map(campo => campo[1]),
+    "Ações"
+  ];
+
+  titulos.forEach(titulo => {
+    const th = document.createElement("th");
+    th.textContent = titulo;
+    linha.appendChild(th);
+  });
+
+  document.getElementById("cab").appendChild(linha);
+}
+
+// Limpa o formulário e encerra o modo de edição.
+function limparFormulario() {
+  formulario.reset();
+  idEmEdicao = null;
+}
+
+// Lê os valores digitados e monta o objeto enviado à API.
+function obterDadosFormulario() {
+  const dados = {
+    id: idEmEdicao
+  };
+
+  configuracao.campos.forEach(([nome, , tipo]) => {
+    const valor = formulario.elements[nome].value;
+
+    dados[nome] = tipo === "number"
+      ? Number(valor)
+      : valor;
+  });
+
+  return dados;
+}
+
+// Salva um novo registro ou atualiza um registro existente.
+async function salvarRegistro(evento) {
+  evento.preventDefault();
+
+  const editando = idEmEdicao !== null;
+  const metodo = editando ? "PUT" : "POST";
+
+  await fetch(API + secao, {
+    method: metodo,
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(obterDadosFormulario())
+  });
+
+  limparFormulario();
+  carregarRegistros();
+}
+
+// Busca os registros na API e atualiza a tabela.
+async function carregarRegistros() {
+  const resposta = await fetch(API + secao);
+  const registros = await resposta.json();
+
+  corpoTabela.innerHTML = "";
+
+  registros.forEach(registro => {
+    const linha = document.createElement("tr");
+
+    adicionarCelula(linha, registro.id);
+
+    configuracao.campos.forEach(([nome]) => {
+      adicionarCelula(linha, registro[nome] ?? "");
     });
-    const td = document.createElement("td");
-    const be = document.createElement("button"); be.textContent = "Editar";
-    be.onclick = () => {
-      editandoId = item.id;
-      cfg.campos.forEach(([c]) => form.elements[c].value = item[c] ?? "");
-      scrollTo(0, 0);
-    };
-    const bd = document.createElement("button"); bd.textContent = "Excluir"; bd.className = "del";
-    bd.style.marginLeft = ".4rem";
-    bd.onclick = async () => {
-      if (!confirm("Excluir este registro?")) return;
-      await fetch(url + "?id=" + item.id, { method: "DELETE" });
-      carregar();
-    };
-    td.append(be, bd); tr.appendChild(td); corpo.appendChild(tr);
+
+    const celulaAcoes = document.createElement("td");
+
+    celulaAcoes.appendChild(
+      criarBotao("Editar", () => editarRegistro(registro))
+    );
+
+    const botaoExcluir = criarBotao(
+      "Excluir",
+      () => excluirRegistro(registro.id)
+    );
+
+    botaoExcluir.className = "del";
+    botaoExcluir.style.marginLeft = ".4rem";
+
+    celulaAcoes.appendChild(botaoExcluir);
+    linha.appendChild(celulaAcoes);
+
+    corpoTabela.appendChild(linha);
   });
 }
-carregar();
+
+// Adiciona uma célula à linha da tabela.
+function adicionarCelula(linha, valor) {
+  const celula = document.createElement("td");
+
+  celula.textContent = valor;
+
+  linha.appendChild(celula);
+}
+
+// Cria um botão e define sua ação.
+function criarBotao(texto, acao) {
+  const botao = document.createElement("button");
+
+  botao.type = "button";
+  botao.textContent = texto;
+
+  botao.addEventListener("click", acao);
+
+  return botao;
+}
+
+// Preenche o formulário com os dados do registro escolhido.
+function editarRegistro(registro) {
+  idEmEdicao = registro.id;
+
+  configuracao.campos.forEach(([nome]) => {
+    formulario.elements[nome].value = registro[nome] ?? "";
+  });
+
+  window.scrollTo(0, 0);
+}
+
+// Exclui um registro após a confirmação do usuário.
+async function excluirRegistro(id) {
+  if (!window.confirm("Excluir este registro?")) {
+    return;
+  }
+
+  await fetch(API + secao + "?id=" + id, {
+    method: "DELETE"
+  });
+
+  carregarRegistros();
+}

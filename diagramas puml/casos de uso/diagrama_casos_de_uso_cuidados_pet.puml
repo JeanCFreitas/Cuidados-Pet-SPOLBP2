@@ -1,0 +1,71 @@
+@startuml
+title Cuidados-Pet — Diagrama de Casos de Uso
+left to right direction
+
+actor "Recepcionista" as Recepcao
+actor "Veterinário" as Vet
+
+rectangle "Sistema Cuidados-Pet" {
+  usecase "Acessar menu principal" as UC_Menu
+
+  usecase "Gerenciar tutores" as UC_Tutores
+  usecase "Cadastrar tutor" as UC_CadTutor
+  usecase "Consultar tutores" as UC_ConsTutor
+  usecase "Editar tutor" as UC_EditTutor
+  usecase "Excluir tutor" as UC_ExcTutor
+
+  usecase "Gerenciar animais" as UC_Animais
+  usecase "Cadastrar animal" as UC_CadAnimal
+  usecase "Consultar animais" as UC_ConsAnimal
+  usecase "Editar animal" as UC_EditAnimal
+  usecase "Excluir animal" as UC_ExcAnimal
+
+  usecase "Gerenciar veterinários" as UC_Vets
+  usecase "Cadastrar veterinário" as UC_CadVet
+  usecase "Consultar veterinários" as UC_ConsVet
+  usecase "Editar veterinário" as UC_EditVet
+  usecase "Excluir veterinário" as UC_ExcVet
+
+  usecase "Gerenciar consultas" as UC_Consultas
+  usecase "Registrar consulta" as UC_CadConsulta
+  usecase "Consultar consultas" as UC_ConsConsulta
+  usecase "Editar consulta" as UC_EditConsulta
+  usecase "Excluir consulta" as UC_ExcConsulta
+}
+
+Recepcao --> UC_Menu
+Vet --> UC_Menu
+
+Recepcao --> UC_Tutores
+Recepcao --> UC_Animais
+Recepcao --> UC_Vets
+Recepcao --> UC_Consultas
+Vet --> UC_Animais
+Vet --> UC_Consultas
+Vet --> UC_Vets
+
+UC_Tutores .> UC_CadTutor : <<include>>
+UC_Tutores .> UC_ConsTutor : <<include>>
+UC_Tutores .> UC_EditTutor : <<include>>
+UC_Tutores .> UC_ExcTutor : <<include>>
+
+UC_Animais .> UC_CadAnimal : <<include>>
+UC_Animais .> UC_ConsAnimal : <<include>>
+UC_Animais .> UC_EditAnimal : <<include>>
+UC_Animais .> UC_ExcAnimal : <<include>>
+
+UC_Vets .> UC_CadVet : <<include>>
+UC_Vets .> UC_ConsVet : <<include>>
+UC_Vets .> UC_EditVet : <<include>>
+UC_Vets .> UC_ExcVet : <<include>>
+
+UC_Consultas .> UC_CadConsulta : <<include>>
+UC_Consultas .> UC_ConsConsulta : <<include>>
+UC_Consultas .> UC_EditConsulta : <<include>>
+UC_Consultas .> UC_ExcConsulta : <<include>>
+
+note bottom of UC_Consultas
+  O registro da consulta contém data, animal,
+  veterinário, motivo e valor.
+end note
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+title Cuidados-Pet — Diagrama de Classes
+left to right direction
+skinparam classAttributeIconSize 0
+
+class Veterinario {
+  - id: int
+  - nome: String
+  - telefone: String
+  - email: String
+  - endereco: String
+  - especialidade: String
+}
+
+class Tutor {
+  - id: int
+  - nome: String
+  - telefone: String
+  - email: String
+  - endereco: String
+}
+
+class Animal {
+  - id: int
+  - nome: String
+  - especie: String
+  - raca: String
+  - idade: int
+  - peso: float
+  - nomeTutor: String
+}
+
+class Consulta {
+  - id: int
+  - data: Date
+  - nomeAnimal: String
+  - nomeVeterinario: String
+  - motivo: String
+  - valor: float
+}
+
+' Associações conceituais indicadas pelos campos de referência
+Tutor "1" -- "0..*" Animal : responsável por
+Animal "1" -- "0..*" Consulta : recebe
+Veterinario "1" -- "0..*" Consulta : realiza
+
+note bottom of Animal
+  No formulário atual, o tutor é referenciado
+  pelo campo nomeTutor (String).
+end note
+
+note bottom of Consulta
+  No formulário atual, animal e veterinário
+  são referenciados por nomeAnimal e
+  nomeVeterinario (String).
+end note
+
+@enduml
