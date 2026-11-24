@@ -81,6 +81,7 @@ function iniciarPagina() {
 
 // Cria os campos do formulário com base na configuração da seção.
 function criarFormulario() {
+  formulario.setAttribute("autocomplete", "off");
   configuracao.campos.forEach(([nome, rotulo, tipo]) => {
     const label = document.createElement("label");
     label.textContent = rotulo;
@@ -89,6 +90,8 @@ function criarFormulario() {
     input.name = nome;
     input.type = tipo || "text";
     input.required = true;
+    // Desativa sugestões e preenchimento automático.
+    input.setAttribute("autocomplete", "off");
 
     if (tipo === "number") {
       input.step = "any";
